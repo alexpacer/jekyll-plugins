@@ -74,8 +74,8 @@ module Jekyll
         #last sigment of the page
         last_sig = /(\/([^\/]+))?\/([^\/]+)$/.match(self.url){|m| m }
         parent_name = /(\/[^\/]+)#{last_sig}$/.match(self.url)[1] + "/"
-        Jekyll.Pages.each do |p|
-          return p if p.level == (self.level-1) && /#{parent_name}index\..+/.match(p.url)
+        Jekyll.Pages.select do |p|
+          p.level == (self.level-1) && /#{parent_name}index\..+/.match(p.url)
         end
         nil
       end
@@ -84,6 +84,12 @@ module Jekyll
     # Returns all childern elements of this current page
     # 
     def children()
+      if self == Jekyll.RootNode
+        return Jekyll.Pages.collect do |p|
+          p
+        end
+      else
+      end
       # if self == Jekyll.RootNode # retrieve all child pages fir /index.*
       #   return Jekyll.Pages.collect do |p|
       #     p if p.url.scan(/\//).size == 2 && p.url != Jekyll.RootNode.url
