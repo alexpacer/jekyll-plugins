@@ -6,6 +6,8 @@ module Jekyll
   
   class TreeDirTag < Liquid::Tag
     
+    # Retrieve root element configuration
+    #
     def initialize(tag_name, markup, tokens)
       @root_url = ''
       if markup.strip =~ /\s*root:(.+)/i
@@ -15,46 +17,31 @@ module Jekyll
       super
     end
     
+    # Helps traverse tree structure into UL-LI list in html form
+    #
+    def traverse_tree(node)
+      str = "<li>#{node.data['title']}"
+      if node.has_children?
+        str << "<ul>"
+        node.children.each{|c| str << traverse_tree(c) }
+        str << "</ul>"
+      end
+      str << "</li>"
+      str
+    end
+    
     def render(context)
-      html = ''
+      html = '<ul>'
       Jekyll.Pages = context.registers[:site].pages
-      #Jekyll.Pages.each{|p| Jekyll.RootNode = p if /^\/index\..+$/.match(p.url) }      # find root node first
       Jekyll.RootNode = Jekyll.Pages.select{|p| p.url == @root_url }.first
-      
-      puts "~~"
-      puts Jekyll.Pages.select{|p| p.url == @root_url }.first.url
-
-
-      puts "---render---"
-      puts "root: #{Jekyll.RootNode}"
-      puts ""
-      puts ""
-      Jekyll.Pages.reject{|c| c.level < 0 }
-        .sort{|a,b| a.level <=> b.level }
-        .each{|p| 
-          puts "Level: #{p.level} :: #{p.url}" 
-          if !p.parent.nil?
-            puts " has parent #{p.parent} :: #{p.parent.url}"
-          end
-        }
-      
-      # Jekyll.Pages.each do |p|
-      #         title = p.data['title']
-      #         puts "-----page ----"
-      #         html << "<a href='#{p.url}' class='page-tree-link'>#{title}</a> <br />"
-      #         puts "Page #{p.url} at level:#{p.level} has following children "
-      #         #puts p.parent.url if !p.parent.nil?
-      #         # p.children.each{|c|
-      #         #   puts "  -#{c.url}" if !c.nil?
-      #         # }
-      #       end
-      
+      html << traverse_tree(Jekyll.Pages.select{|c| c.level == 0 }.first)
+      html << '</ul>'
       html
     end
   end
 
   
-  # Implement SimpleTree
+  # Implement SimpleTree in Jekyll::Page object
   # 
   class Page
     include SimpleTree
@@ -76,43 +63,23 @@ module Jekyll
         parent_name = /(\/[^\/]+)#{last_sig}$/.match(self.url)[1] + "/"
         Jekyll.Pages.select do |p|
           p.level == (self.level-1) && /#{parent_name}index\..+/.match(p.url)
-        end
-        nil
+        end.first
       end
     end
     
     # Returns all childern elements of this current page
     # 
     def children()
-      if self == Jekyll.RootNode
-        return Jekyll.Pages.collect do |p|
-          p
-        end
-      else
+      # The signature of current node
+      sig = /(\/[^\/]+\/)index..+$/.match(self.url)[1]
+      Jekyll.Pages.select do |p|
+        p.level == (self.level + 1) && /#{sig}[^\/]+\/index..+$/.match(p.url) # 1 level lower and has signature before the node
       end
-      # if self == Jekyll.RootNode # retrieve all child pages fir /index.*
-      #   return Jekyll.Pages.collect do |p|
-      #     p if p.url.scan(/\//).size == 2 && p.url != Jekyll.RootNode.url
-      #   end
-      # else
-      #   # The sigment of the current page, say "/bio/about.html", the sigment would be "/bio/"
-      #   sig = /^(\/[^\/]+)\//.match(self.url)
-      #   return Jekyll.Pages.collect do |p|
-      #     # if the page's url has current page's sigment, and it's not current page
-      #     p if sig && /^#{sig[0]}[^index]/.match(p.url) && self != p
-      #   end
-      # end
     end
     
   end
 
 end
 
-
-
 Liquid::Template.register_tag('tree_dir', Jekyll::TreeDirTag)
-
-
-
-
 

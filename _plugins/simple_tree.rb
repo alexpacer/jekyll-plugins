@@ -133,7 +133,6 @@ module SimpleTree
     outp.flatten
   end
 
-
   #
   # Helper method for to_s, returns a tree representation of the subtree
   # rooted at this node.  This assumes some sort of identifier is specified
@@ -157,5 +156,13 @@ module SimpleTree
     end
     outp
   end
-
+  
+  def traverse(&blk)
+    yield self if blk
+    if self.has_children?
+      self.children.each{|child| child.traverse(&blk) }
+    end
+  end
+  
+  
 end
