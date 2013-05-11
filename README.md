@@ -6,15 +6,18 @@ Collection of Jekyll plugins custom made
 # Tree Dir Tag
 Specify a root index directory (index.html) and the tag will traverse through sub directory structure and output a HTML UL>LI list.
 
+## Usage
+- This plugin needs a root directory/page.
+- This plugin only supports directory-page style in Jekyll, a single [page-name].html page will not work with this plugin.
 
-# Example
+## Example
 
-To use the tag in template
+To use the tag in template:
 
 ```html
-&lt;div id="dir"&gt;
+<div id="dir">
 	{% tree_dir_tag root:/dir/index.html %}
-&lt;/div&gt;
+</div>
 ```
 
 
