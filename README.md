@@ -20,6 +20,8 @@ To use the tag in template:
 </div>
 ```
 
+# LICENSE
+see [license](https://github.com/alexpacer/jekyll-plugins/blob/master/LICENSE)
 
 ## Dependencies
 
