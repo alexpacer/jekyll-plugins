@@ -4,12 +4,8 @@
 	<meta charset="utf-8" />
 </head>
 <body>
-	{% tree_dir root:/api-references/index.html %}
-	<div>
-		{% for p in site.pages %}
-			<a href="#">{{ p.title }}</a><br />
-		{% endfor %}
-		
+  <div id="dir">
+	{% tree_dir_tag root:/dir/index.html %}
 	</div>
 	{{ content }}
 </body>

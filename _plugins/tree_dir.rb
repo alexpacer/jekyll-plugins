@@ -17,10 +17,19 @@ module Jekyll
       super
     end
     
+    def render(context)
+      html = '<ul>'
+      Jekyll.Pages = context.registers[:site].pages
+      Jekyll.RootNode = Jekyll.Pages.select{|p| p.url == @root_url }.first
+      html << traverse_tree(Jekyll.Pages.select{|c| c.level == 0 }.first)
+      html << '</ul>'
+      html
+    end
+    
     # Helps traverse tree structure into UL-LI list in html form
     #
     def traverse_tree(node)
-      str = "<li>#{node.data['title']}"
+      str = "<li><a href='#{node.url}'>#{node.data['title']}</a>"
       if node.has_children?
         str << "<ul>"
         node.children.each{|c| str << traverse_tree(c) }
@@ -30,14 +39,6 @@ module Jekyll
       str
     end
     
-    def render(context)
-      html = '<ul>'
-      Jekyll.Pages = context.registers[:site].pages
-      Jekyll.RootNode = Jekyll.Pages.select{|p| p.url == @root_url }.first
-      html << traverse_tree(Jekyll.Pages.select{|c| c.level == 0 }.first)
-      html << '</ul>'
-      html
-    end
   end
 
   
@@ -81,5 +82,5 @@ module Jekyll
 
 end
 
-Liquid::Template.register_tag('tree_dir', Jekyll::TreeDirTag)
+Liquid::Template.register_tag('tree_dir_tag', Jekyll::TreeDirTag)
 
