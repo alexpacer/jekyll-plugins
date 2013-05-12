@@ -50,7 +50,11 @@ module Jekyll
     
     # Number of slash(s) will determine the current level if where the page sits
     def level
-      self.url.scan(/\//).size - Jekyll.RootNode.url.scan(/\//).size
+      sig = /(\/[^\/]+\/)index..+$/.match(Jekyll.RootNode.url)[1]
+      if self.url.match(/#{sig}/)
+        return self.url.scan(/\//).size - Jekyll.RootNode.url.scan(/\//).size
+      end
+      -666
     end
     
     # Retrieve the parent if parent is not null
