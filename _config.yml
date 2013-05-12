@@ -6,3 +6,4 @@ rdiscount:
     - smart
 pygments: false
 redirects: yes
+permalink: pretty

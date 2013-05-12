@@ -2,7 +2,8 @@
 module Jekyll
   @Pages = nil
   @RootNode = nil
-  class << self; attr_accessor :Pages; attr_accessor :RootNode; end
+  @Permalink = nil
+  class << self; attr_accessor :Pages; attr_accessor :RootNode; attr_accessor :Permalink; end
   
   class TreeDirTag < Liquid::Tag
     
@@ -18,9 +19,17 @@ module Jekyll
     end
     
     def render(context)
+      Jekyll.Permalink = context.registers[:site].config['permalink']
+      
+      # Change root_url style per conf setting
+      if Jekyll.Permalink == 'none' || Jekyll.Permalink == 'date'
+        @root_url << 'index.html'
+      end
+      
       html = '<ul>'
       Jekyll.Pages = context.registers[:site].pages
       Jekyll.RootNode = Jekyll.Pages.select{|p| p.url == @root_url }.first
+      
       html << traverse_tree(Jekyll.Pages.select{|c| c.level == 0 }.first)
       html << '</ul>'
       html
@@ -48,10 +57,15 @@ module Jekyll
   class Page
     include SimpleTree
     
+    def category_ext
+      (Jekyll.Permalink == 'none' || Jekyll.Permalink == 'date') ? '[^\/]+.html' : ''
+    end
+    
     # Number of slash(s) will determine the current level if where the page sits
     def level
-      sig = /(\/[^\/]+\/)index..+$/.match(Jekyll.RootNode.url)[1]
-      if self.url.match(/#{sig}/)
+      category_regex = "(\/[^\/]+\/)#{category_ext}$"
+      category = /#{category_regex}/.match(Jekyll.RootNode.url)[1]
+      if self.url.match(/#{category}/)
         return self.url.scan(/\//).size - Jekyll.RootNode.url.scan(/\//).size
       end
       -666
@@ -68,7 +82,7 @@ module Jekyll
         last_sig = /(\/([^\/]+))?\/([^\/]+)$/.match(self.url){|m| m }
         parent_name = /(\/[^\/]+)#{last_sig}$/.match(self.url)[1] + "/"
         Jekyll.Pages.select do |p|
-          p.level == (self.level-1) && /#{parent_name}index\..+/.match(p.url)
+          p.level == (self.level-1) && /#{parent_name}#{category_ext}/.match(p.url)
         end.first
       end
     end
@@ -77,9 +91,9 @@ module Jekyll
     # 
     def children()
       # The signature of current node
-      sig = /(\/[^\/]+\/)index..+$/.match(self.url)[1]
+      sig = /(\/[^\/]+\/)#{category_ext}$/.match(self.url)[1]
       Jekyll.Pages.select do |p|
-        p.level == (self.level + 1) && /#{sig}[^\/]+\/index..+$/.match(p.url) # 1 level lower and has signature before the node
+        p.level == (self.level + 1) && /#{sig}[^\/]+\/#{category_ext}$/.match(p.url) # 1 level lower and has signature before the node
       end
     end
     

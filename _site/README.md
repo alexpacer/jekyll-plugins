@@ -10,6 +10,24 @@ Specify a root index directory (index.html) and the tag will traverse through su
 - This plugin needs a root directory/page.
 - This plugin only supports directory-page style in Jekyll, a single [page-name].html page will not work with this plugin.
 
+## Parameter
+
+### * tree_ignore_link
+
+`true` if this page is not to be linked in listed menu, the link hre will be `#`.   
+
+  Useful when this page is only to provide a category-like section  
+  default to `false`  
+  **Usage**  
+  ```
+  ---
+  layout: default
+  title: Dir 3
+  tree_ignore_link: true
+  ---
+  ```
+  
+
 ## Example
 
 To use the tag in template:
