@@ -29,7 +29,8 @@ module Jekyll
     # Helps traverse tree structure into UL-LI list in html form
     #
     def traverse_tree(node)
-      str = "<li><a href='#{node.url}'>#{node.data['title']}</a>"
+      href = (node.data['tree_ignore_link'] ||= false) ? '#' : node.url
+      str = "<li><a href='#{href}'>#{node.data['title']}</a>"
       if node.has_children?
         str << "<ul>"
         node.children.each{|c| str << traverse_tree(c) }
