@@ -1,3 +1,4 @@
+require "#{File.dirname(__FILE__)}/simple_tree.rb"
 
 module Jekyll
   @Pages = nil
